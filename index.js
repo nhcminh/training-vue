@@ -46,7 +46,7 @@ new Vue({
       this.view = newView;
     }
   },
-  created() {
+  mounted() {
     this.checkLogin();
   },
 });
