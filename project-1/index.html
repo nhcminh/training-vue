@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div id="app">
+        <header class="header-container">
+            <div class="container d-block d-flex justify-end align-center pa-4">
+                <v-btn rounded="0" variant="tonal" class="sign-in-btn bg-grey-lighten-2" @click="handleShowModal">Sign In</v-btn>
+            </div>
+        </header>
+        <div class="container bg-grey-lighten-3 pt-15 pb-15 d-flex flex-column align-center">
+            <h3 class="text-h3">
+                Welcome to the VUE Page
+            </h3>
+            <v-btn rounded="0" variant="flat" class="btn-content mt-16 bg-grey-lighten-1">Browser the content</v-btn>
+        </div>
+        <div v-if="isOpenModal" id="sign-in-dialog" class="zoom-anim-dialog modal" @click="handleCloseModal">
+            <!--Tabs -->
+            <div class="sign-in-form style-1 modal__container" @click.stop>
+                <div class="modal__header mb-4 d-flex justify-end align-center pa-2">
+                    <span class="modal__close" @click="handleCloseModal">X</span>
+                </div>
+                <div class="modal__body">
+                    <ul class="tabs-nav">
+                        <li v-for="tab in tabs" :key="tab" :class="{'active' : type === tab}" @click="setType(tab)"><span>{{ tab }}</span></li>
+                    </ul>
+
+                    <div class="tabs-container alt">
+    
+                        <!-- Login -->
+                        <div class="tab-content" v-if="type === tabs[0]" id="tab1">
+                            <h2 class="title-form mb-4">Sign In</h2>   
+                            <v-form class="login" @submit.prevent="handleSubmitLogin">
+    
+                                <p class="form-row form-row-wide">
+                                    <v-text-field v-model="userLogin.email" variant="plain" :rules="rules.email" type="email" class="input-text" placeholder="Email" required/>
+                                </p>
+    
+                                <p class="form-row form-row-wide">
+                                    <v-text-field 
+                                    v-model="userLogin.password" 
+                                    variant="plain" 
+                                    :rules="rules.password" 
+                                    class="input-text" 
+                                    type="password"
+                                    placeholder="Password"
+                                    required
+                                    />
+                                </p>
+    
+                                <div class="mb-4">
+                                    <v-btn :loading="loading" :disabled="loading" color="primary" variant="flat" type="submit">Submit</v-btn>
+                                </div>
+                                                                    
+                                <div>
+                                    <span class="mr-2">
+                                        <span class='text-gray-400 text-medium-emphasis text-caption'>Don't have an account?</span>
+                                    </span>                            
+                                    <span class="lost_password">
+                                        <a class="text-caption text-decoration-none text-blue" rel="noopener noreferrer" href="#" >Forgot Your Password?</a>
+                                    </span>
+                                </div>
+                            </v-form>
+                        </div>
+    
+                        <!-- Register -->
+                        <div class="tab-content" v-if="type === tabs[1]" id="tab2">
+                            <h2 class="title-form mb-4">Sign Up</h2>   
+                            <v-form method="post" class="register" @submit.prevent="handleSubmitRegister">
+                                 
+                                <p class="form-row form-row-wide">
+                                    <v-text-field variant="plain" :rules="rules.email" v-model="userRegister.email" type="text" class="input-text" placeholder="Email" required />
+                                </p>
+    
+                                <p class="form-row form-row-wide">
+                                    <v-text-field variant="plain" :rules="rules.password" v-model="userRegister.password" class="input-text" type="password" placeholder="Password" required/>
+                                </p>
+    
+                                <p class="form-row form-row-wide">
+                                    <v-text-field variant="plain" :rules="rules.confirmPassword" @update:error="checkPassword" v-model="userRegister.confirmPassword" class="input-text" type="password" placeholder="Confirm Password" required/>
+                                </p>
+    
+                                <div class="mb-4">
+                                    <v-btn :loading="loading" :disabled="loading" color="primary" variant="flat" type="submit">Submit</v-btn>
+                                </div>
+    
+                                <div>
+                                    <span class="mr-2">
+                                        <span class='text-gray-400 text-medium-emphasis text-caption'>Already have an account?</span>
+                                    </span>                            
+                                    <span class="lost_password">
+                                        <a class="text-caption text-decoration-none text-blue" rel="noopener noreferrer" href="#" >Sign up here</a>
+                                    </span>
+                                </div>
+                                
+                            </v-form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vuex@4.0.0/dist/vuex.global.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3.3.5/dist/vuetify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.3.5/dist/vuetify.min.js"></script>
+    <script type="module" src="./utils/auth.js"></script>
+    <script type="module" src="./constants/httpStatusCode.js"></script>
+    <script type="module" src="./constants/validationMessage.js"></script>
+    <script type="module" src="./utils/http.js"></script>
+    <script type="module" src="./apis/auth.api.js"></script>
+    <script type="module" src="./store/index.js"></script>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
