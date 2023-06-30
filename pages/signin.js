@@ -32,12 +32,29 @@ export default {
             Sign In
             </v-btn>
         </v-form>
+        <v-snackbar
+          v-model="snackbar"
+          timeout="1500"
+          color="red accent-2"
+          centered
+          top
+          absolute
+        >
+          <v-icon
+            dark
+            right
+          >
+            mdi-cancel
+          </v-icon>
+          Incorrect email or password!!!
+        </v-snackbar>
       </v-card-text>
     </v-card>
   </v-container>
   `,
   data: () => ({
     valid: false,
+    snackbar: false,
     email: "",
     emailRules: [
       (v) => !!v || "E-mail is required",
@@ -55,6 +72,8 @@ export default {
         localStorage.setItem("token", true);
         // this.$router.push("/home");
         this.$emit('update', 'home')
+      } else {
+        this.snackbar = true;
       }
     },
     navigate() {

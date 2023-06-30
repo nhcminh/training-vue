@@ -23,6 +23,7 @@ export default {
     `,
   methods: {
     handleEvent() {
+      this.isLogin ? localStorage.removeItem('token') : null;
       this.$emit("update", "signin");
     },
   },
