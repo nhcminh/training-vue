@@ -1,51 +1,24 @@
-// Api URL
-const API_URL = 'https://api-ecom.duthanhduoc.com'
-//Axios common
-const axiosCaller = async (method, url, data, handleSuccess, handleError) => {
-    try {
-        const response = await axios({
-            method: method,
-            url: API_URL + url,
-            data: data
-        });
-        handleSuccess(response.data);
-    } catch (error) {
-        handleError(error);
-        throw error;
-    }
-};
-//validation rules
-const validation = {
-    email: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-    ],
-    password: [
-        v => !!v || 'Password is required',
-        v => v.length >= 6 || 'Password must be at least 6 characters',
-    ],
-    confirmPassword: (password) => [
-        v => !!v || 'Confirm Password is required',
-        v => v === password || 'Password does not match',
-    ]
-}
+import { validation } from "./validations.js";
+import { axiosCaller } from "./services.js";
+import { store } from "./store.js";
 
 // EventBus
 const eventBus = new Vue();
 
 // Gen Vue instance
-const appIntance = new Vue({
+const appInstance = new Vue({
     el: '#app',
+    store,
     vuetify: new Vuetify(),
     template: `
     <v-app>
         <div v-if="isLoading" class="loading-container">
             <div class="loading"></div>
         </div>
+        <div class="app__wrapper">
         <div class="nav-bar">
             <button class="sign-in" @click="handleOpenSignIn()">Sign in</button>
         </div>
-        <div class="app__wrapper">
             <div class="title">Welcome to the VUE Page</div>
             <button>Browse the content</button>
         </div>
@@ -105,9 +78,13 @@ const appIntance = new Vue({
             eventBus.$emit('show-sign-in')
         },
         //Auth methods
-        handleAuth(method, path, data, errorMessage) {
+        handleAuth(method, path, data, errorMessage, handleSuccess) {
             this.isLoading = true;
-            axiosCaller(method, path, data, (result) => { this.handleShowAlert(result?.message, 'green'); this.isLoading = false }, () => { this.handleShowAlert(errorMessage, 'red'); this.isLoading = false });
+            return axiosCaller(method, path, data, (result) => {
+                handleSuccess(result);
+                this.handleShowAlert(result?.message, 'green');
+                this.isLoading = false
+            }, () => { this.handleShowAlert(errorMessage, 'red'); this.isLoading = false });
         },
     },
     //life cycle
@@ -115,14 +92,14 @@ const appIntance = new Vue({
         eventBus.$on('toggle-overlay', (status) => {
             this.handleToggleOverlay(status);
         });
-        eventBus.$on('handle-auth', (method, path, data, errorMessage) => {
-            this.handleAuth(method, path, data, errorMessage)
+        eventBus.$on('handle-auth', (method, path, data, errorMessage, handleSuccess = () => { }) => {
+            this.handleAuth(method, path, data, errorMessage, handleSuccess)
         })
     }
 })
 
 //Login Instance
-const loginIntance = new Vue({
+const loginInstance = new Vue({
     el: '#login-form',
     vuetify: new Vuetify(),
     template: `
@@ -160,11 +137,15 @@ const loginIntance = new Vue({
             this.$refs.form.validate();
         },
         //Auth methods
+        handleInitUser(result) {
+            const { user } = result?.data;
+            this.$store.dispatch('handleLogin', user);
+        },
         handleSignIn() {
             this.validate();
             if (!this.valid) return;
             const data = { email: this.email, password: this.password }
-            eventBus.$emit('handle-auth', 'POST', '/login', data, 'Sign In fail!');
+            eventBus.$emit('handle-auth', 'POST', '/login', data, 'Sign In fail!', this.handleInitUser);
         },
         handleOpenSignUp() {
             this.isShow = false;
@@ -173,6 +154,7 @@ const loginIntance = new Vue({
     },
     //life cycle
     created() {
+        this.$store = store;
         eventBus.$on('show-sign-in', () => {
             this.isShow = true;
         });
@@ -180,7 +162,7 @@ const loginIntance = new Vue({
 })
 
 //Sign Up Instance
-const signUpIntance = new Vue({
+const signUpInstance = new Vue({
     el: '#signup-form',
     vuetify: new Vuetify(),
     template: `
@@ -222,8 +204,8 @@ const signUpIntance = new Vue({
         validate() {
             this.$refs.form.validate();
         },
-
         //Auth methods
+
         handleSignUp() {
             this.validate();
             if (!this.valid) return;
