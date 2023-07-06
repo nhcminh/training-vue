@@ -4,13 +4,18 @@ export const store = new Vuex.Store({
         userInfo: {}
     },
     mutations: {
-        login(userInfo) {
-            this.state.userInfo = userInfo;
+        login(state, userInfo) {
+            state.userInfo = userInfo;
         }
     },
     actions: {
         handleLogin(context, userInfo) {
             context.commit('login', userInfo);
+        }
+    },
+    getters: {
+        userInfo(state) {
+            return state.userInfo;
         }
     }
 });

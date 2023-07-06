@@ -17,7 +17,30 @@ const appInstance = new Vue({
         </div>
         <div class="app__wrapper">
         <div class="nav-bar">
-            <button class="sign-in" @click="handleOpenSignIn()">Sign in</button>
+            <v-menu offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-avatar
+                        color="primary"
+                        dark
+                        v-bind="attrs"
+                        v-on="on"
+                    >
+                        <img
+                        src="https://cdn.vuetifyjs.com/images/john.jpg"
+                        alt="Trung">
+                    </v-avatar>
+                </template>
+                <v-list>
+                    <v-list-item> </v-list-item>
+                    <v-list-item
+                        v-for="(item, index) in menu"
+                        :key="index"
+                        @click="handle_function_call(item.action)"
+                    >
+                        <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
         </div>
             <div class="title">Welcome to the VUE Page</div>
             <button>Browse the content</button>
@@ -25,13 +48,16 @@ const appInstance = new Vue({
         <!-- Overlay -->
         <div class="overlay__wrapper" v-show="overlayStatus">
             <v-overlay contained class="align-center justify-center">
-                <v-alert v-if="showAlert.message" border="top" :color="showAlert.type + ' lighten-2'" dark>
-                    {{showAlert.message}}
-                </v-alert>
-                <!-- Sign In Form  -->
-                <div id="login-form"></div>
-                <!-- Sign Up Form  -->
-                <div id="signup-form"></div>
+                <div class="overlay__outside" @click="overlay = false"></div>
+                <div class="overlay__content"> 
+                    <v-alert v-if="showAlert.message" border="top" :color="showAlert.type + ' lighten-2'" dark>
+                        {{showAlert.message}}
+                    </v-alert>
+                    <!-- Sign In Form  -->
+                    <div id="login-form"></div>
+                    <!-- Sign Up Form  -->
+                    <div id="signup-form"></div>
+                </div>
             </v-overlay>
         </div>
     </v-app>
@@ -39,9 +65,13 @@ const appInstance = new Vue({
     data: {
         overlay: false,
         isLoading: false,
+        menu: [
+            { title: 'Sign In', action: 'handleOpenSignIn' },
+            { title: 'Sign Up', action: 'handleOpenSignUp' },
+        ],
         alert: {
             message: '',
-            type: 'red'
+            type: 'red',
         },
     },
     computed: {
@@ -60,6 +90,10 @@ const appInstance = new Vue({
                 type: this.alert.type
             }
             return newAlert;
+        },
+        userInfo() {
+            console.log(this.$store.getters.userInfo)
+            return this.$store.getters.userInfo
         }
     },
     methods: {
@@ -75,7 +109,16 @@ const appInstance = new Vue({
         },
         handleOpenSignIn() {
             this.handleToggleOverlay(true)
-            eventBus.$emit('show-sign-in')
+            eventBus.$emit('toggle-sign-in', true)
+            eventBus.$emit('toggle-sign-up', false)
+        },
+        handleOpenSignUp() {
+            this.handleToggleOverlay(true)
+            eventBus.$emit('toggle-sign-up', true)
+            eventBus.$emit('toggle-sign-in', false)
+        },
+        handle_function_call(function_name) {
+            this[function_name]()
         },
         //Auth methods
         handleAuth(method, path, data, errorMessage, handleSuccess) {
@@ -149,14 +192,14 @@ const loginInstance = new Vue({
         },
         handleOpenSignUp() {
             this.isShow = false;
-            eventBus.$emit('show-sign-up');
+            eventBus.$emit('toggle-sign-up', true);
         },
     },
     //life cycle
     created() {
         this.$store = store;
-        eventBus.$on('show-sign-in', () => {
-            this.isShow = true;
+        eventBus.$on('toggle-sign-in', (status) => {
+            this.isShow = status;
         });
     }
 })
@@ -214,13 +257,13 @@ const signUpInstance = new Vue({
         },
         handleOpenSignIn() {
             this.isShow = false
-            eventBus.$emit('show-sign-in')
+            eventBus.$emit('toggle-sign-in', true)
         },
     },
     //life cycle
     created() {
-        eventBus.$on('show-sign-up', () => {
-            this.isShow = true;
+        eventBus.$on('toggle-sign-up', (status) => {
+            this.isShow = status;
         });
     }
 })
