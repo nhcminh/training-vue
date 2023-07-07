@@ -31,8 +31,9 @@ const appInstance = new Vue({
                     </v-avatar>
                 </template>
                 <v-list>
-                    <v-list-item> </v-list-item>
-                    <v-list-item
+                    <v-list-item v-if="userInfo">Profile</v-list-item>
+                    <v-list-item 
+                        v-else
                         v-for="(item, index) in menu"
                         :key="index"
                         @click="handle_function_call(item.action)"
@@ -92,8 +93,7 @@ const appInstance = new Vue({
             return newAlert;
         },
         userInfo() {
-            console.log(this.$store.getters.userInfo)
-            return this.$store.getters.userInfo
+            return this.$store.getters.userInfo?._id
         }
     },
     methods: {

@@ -5,6 +5,7 @@ export const store = new Vuex.Store({
     },
     mutations: {
         login(state, userInfo) {
+            console.log(userInfo);
             state.userInfo = userInfo;
         }
     },
